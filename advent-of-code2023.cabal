@@ -31,6 +31,7 @@ executable advent-of-code2023
           InputData
         , Day1
         , Day2
+        , Day3
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -41,5 +42,8 @@ executable advent-of-code2023
         , bytestring
         , time
         , text
+        , regex-tdfa
+        , regex-posix
+
     hs-source-dirs:   app
     default-language: Haskell2010
