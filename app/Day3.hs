@@ -72,7 +72,9 @@ multiplyParts :: [PartNumber] -> Int
 multiplyParts p = foldl' (*) 1 (map value p)
 
 calcCoord :: [PartNumber] -> Coord -> Int
-calcCoord parts coord = multiplyParts (listSurroundingParts parts coord)
+calcCoord parts coord = do
+  let sParts = (listSurroundingParts parts coord)
+  if (length sParts) > 1 then multiplyParts sParts else 0
 
 day3 :: IO()
 day3 = do
@@ -90,8 +92,5 @@ day3 = do
   putStrLn "--- PART 2 -------------------------"
   let coordList2 = (concat (map eachLineP2 (zipWith (\idx c -> (idx, c)) [0..] (lines (replacePeriods respb)))))
   let coords = (map fixCoords (filter (\(boolVal, _) -> boolVal) coordList))
-  print coords
-  print (multiplyParts (listSurroundingParts values (coords!!0)))
   print (sum (map (calcCoord values) coords))
   putStrLn "------------------------------------"
--- Jag tror att man bara ska kolla en rak linje. Nu kollar jag i V form osv ocksa
