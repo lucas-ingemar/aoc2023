@@ -8,14 +8,23 @@ import Data.List.Split (wordsBy)
 import InputData (getInputData)
 import Data.List (intersect, nub)
 
-removeCardTag :: String -> [Text]
-removeCardTag s = splitOn "|" (last (splitOn ":" (pack s)))
+data Card = Card{id :: Int, winVals :: [Int], vals :: [Int]} deriving (Show, Eq)
 
-convertToInt :: [Text] -> [[Int]]
-convertToInt s = map (\t -> map read (wordsBy (not . isDigit) (unpack t))) s
+filterDigits :: String -> String
+filterDigits val = filter isDigit val
 
-winningNumbers :: [[Int]] -> [Int]
-winningNumbers l = nub (intersect (head l) (last l))
+convertToInt :: Text -> [Int]
+convertToInt s = map read (wordsBy (not . isDigit) (unpack s))
+
+parseCards :: String -> Card
+parseCards s = do
+  let dataList = splitOn ":" (pack s)
+  let vals = splitOn "|" (last dataList)
+  let tId = read (filterDigits (unpack (head dataList)))
+  Card tId (convertToInt (head vals)) (convertToInt (last vals))
+
+winningNumbers :: Card -> [Int]
+winningNumbers c = nub (intersect (winVals c) (vals c))
 
 calcPoints :: [Int] -> Int
 calcPoints l = if length l == 0 then 0 else 2^((length l) - 1)
@@ -24,7 +33,7 @@ day4 :: IO()
 day4 = do
   respb <- getInputData 4
   putStrLn "--- PART 1 -------------------------"
-  print (sum (map calcPoints (map winningNumbers (map convertToInt (map removeCardTag (lines respb))))))
+  print (sum (map calcPoints (map winningNumbers (map parseCards (lines respb)))))
   putStrLn "------------------------------------"
 
   putStrLn "--- PART 2 -------------------------"
