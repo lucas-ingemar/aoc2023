@@ -47,59 +47,42 @@ parseConvMaps s = do
 createSeedMap :: Int -> ConvMap
 createSeedMap v = ConvMap "" "seed" [(v, 0, 0)]
 
+convertToRangeVals :: [a] -> [(a, a)]
+convertToRangeVals [] = []
+convertToRangeVals [_] = []
+convertToRangeVals (x1:x2:xs) = (x1, x2) : convertToRangeVals xs
+
+createSeedMapPart2 ::  (Int, Int) -> [ConvMap]
+createSeedMapPart2 (f, t) = map (\v -> ConvMap "" "seed" [(v, 0, 0)]) [f..((f+t)-1)]
+
 calcPath :: [ConvMap] -> Int -> ConvMap -> (ConvMap, Int)
 calcPath acm idx cm
+  | catTo cm == "" = do
+      calcPath acm idx ((filter (getMap "seed") acm)!!0)
   | catTo cm == "location" = do
-      -- let tIdx  = maybeToInt idx (Map.lookup idx (idMap cm))
       (cm, (getDestVal idx (idList cm)))
   | otherwise = do
-      -- let tIdx  = maybeToInt idx (Map.lookup idx (idMap cm))
       let tIdx = getDestVal idx (idList cm)
       calcPath acm tIdx ((filter (getMap (catTo cm)) acm)!!0)
+
+calcPathPart2 :: [ConvMap] -> (Int, Int) -> Int
+calcPathPart2 acm (sv, ev) = minimum (map (\i -> snd (calcPath acm i (ConvMap "" "" []))) [sv..(sv+ev)])
 
 day5 :: IO()
 day5 = do
   respb <- getInputData 5
---   let respb = "seeds: 79 14 55 13\n\
--- \\n\
--- \seed-to-soil map:\n\
--- \50 98 2\n\
--- \52 50 48\n\
--- \\n\
--- \soil-to-fertilizer map:\n\
--- \0 15 37\n\
--- \37 52 2\n\
--- \39 0 15\n\
--- \\n\
--- \fertilizer-to-water map:\n\
--- \49 53 8\n\
--- \0 11 42\n\
--- \42 0 7\n\
--- \57 7 4\n\
--- \\n\
--- \water-to-light map:\n\
--- \88 18 7\n\
--- \18 25 70\n\
--- \\n\
--- \light-to-temperature map:\n\
--- \45 77 23\n\
--- \81 45 19\n\
--- \68 64 13\n\
--- \\n\
--- \temperature-to-humidity map:\n\
--- \0 69 1\n\
--- \1 0 69\n\
--- \\n\
--- \humidity-to-location map:\n\
--- \60 56 37\n\
--- \56 93 4"
+
+  let rawMaps = splitOn "\n\n" (pack respb)
+  let rawSeeds = map (read::String->Int) (getValues (unpack (head rawMaps)))
+  let cmaps = map parseConvMaps (tail rawMaps)
 
   putStrLn "--- PART 1 -------------------------"
-  let rawMaps = splitOn "\n\n" (pack respb)
-  let seeds = map createSeedMap (map (read::String->Int) (getValues (unpack (head rawMaps))))
-  let cmaps = map parseConvMaps (tail rawMaps)
+  let seeds = map createSeedMap rawSeeds
   print (minimum (map (\s -> snd (calcPath cmaps 0 s)) seeds))
   putStrLn "------------------------------------"
 
   putStrLn "--- PART 2 -------------------------"
+  print (convertToRangeVals rawSeeds)
+  let seeds = concat (map createSeedMapPart2 (convertToRangeVals rawSeeds))
+  print (minimum (map (calcPathPart2 cmaps) (convertToRangeVals rawSeeds)))
   putStrLn "------------------------------------"
