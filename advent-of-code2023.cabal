@@ -33,6 +33,7 @@ executable advent-of-code2023
         , Day2
         , Day3
         , Day4
+        , Day5
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -46,6 +47,7 @@ executable advent-of-code2023
         , regex-tdfa
         , regex-posix
         , split
+        , containers
 
     hs-source-dirs:   app
     default-language: Haskell2010
